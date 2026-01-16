@@ -1,5 +1,7 @@
 # 60 Parsecs: Game Project
-Aldiyar, Adilbek, Gulim
+Aldiyar, Adilbek, Gulim.
+SE-2539
+
 The console version of the game 60 Parsecs! written on java using maven and integration of postgresql.
 Project Iteration 1.
 
