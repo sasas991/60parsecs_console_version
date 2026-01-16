@@ -9,10 +9,39 @@ public class SixtyParsecsGame {
     private final GameUI ui = new GameUI();
     private final GameState state = new GameState();
     private final Random random = new Random();
+    private final GameDatabase db = new GameDatabase();
     
     public void start() {
         ui.printTitle();
-        scavengePhase();
+        
+        ui.println("1. Новая игра");
+        ui.println("2. Загрузить игру");
+        ui.print("Ваш выбор: ");
+        int choice = ui.readInt();
+
+        if (choice == 2) {
+            ui.print("Введите имя сохранения: ");
+            String saveName = ui.readString();
+            GameState loadedState = db.loadGame(saveName);
+            
+            if (loadedState != null) {
+                state.oxygen = loadedState.oxygen;
+                state.food = loadedState.food;
+                state.hull = loadedState.hull;
+                state.day = loadedState.day;
+                state.crew = loadedState.crew;
+                state.items = loadedState.items;
+                state.gameOver = loadedState.gameOver;
+                ui.println("Игра загружена!");
+                ui.pause(1);
+            } else {
+                ui.println("Сохранение не найдено. Начинаем новую игру...");
+                ui.pause(2);
+                scavengePhase();
+            }
+        } else {
+            scavengePhase();
+        }
         
         if (!state.gameOver) {
             survivalPhase();
@@ -168,6 +197,7 @@ public class SixtyParsecsGame {
         ui.println("2. Починить корабль (восстановить корпус)");
         ui.println("3. Рационировать еду (сохранить еду)");
         ui.println("4. Исследовать космос (шанс найти ресурсы)");
+        ui.println("5. Сохранить игру");
         
         ui.print("\nВаш выбор: ");
         int choice = ui.readInt();
@@ -196,6 +226,11 @@ public class SixtyParsecsGame {
                 } else {
                     ui.println("Ничего не найдено...");
                 }
+                break;
+            case 5:
+                ui.print("Введите имя для сохранения: ");
+                String saveName = ui.readString();
+                db.saveGame(saveName, state);
                 break;
         }
         
