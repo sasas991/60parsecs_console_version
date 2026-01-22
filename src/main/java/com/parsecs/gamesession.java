@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class game {
+public class gamesession {
     private final gameui ui=new gameui();
     private final gamestate state=new gamestate();
     private final Random random=new Random();
