@@ -39,32 +39,32 @@ public class gamesession {
             {
                 ui.println("Сохранение не найдено. Начинаем новую игру...");
                 ui.pause(2);
-                scavengePhase();
+                nuclearphase();
             }
         }
         else
             {
-            scavengePhase();
+            nuclearphase();
         }
         
         if (!state.gameover) {
-            survivalPhase();
+            survivalphase();
         }
         
         ui.close();
     }
     
-    private void scavengePhase()
+    private void nuclearphase()
     {
         ui.println("🚨 ТРЕВОГА! ЯДЕРНАЯ АТАКА ЧЕРЕЗ 60 СЕКУНД!");
         ui.println("Быстро собирайте членов экипажа и предметы!\n");
         
-        List<String> availableCrew = new ArrayList<>(Arrays.asList(
+        List<String> crewmembers = new ArrayList<>(Arrays.asList(
             "Капитан Джонс", "Инженер Эмили", "Учёный Макс", 
             "Медик Сара", "Солдат Том"
         ));
         
-        List<String> availableItems = new ArrayList<>(Arrays.asList(
+        List<String> a_items = new ArrayList<>(Arrays.asList(
             "Аптечка", "Суповой порошок", "Атомная батарея",
             "Лазерный пистолет", "Скафандр", "Радио"
         ));
@@ -76,21 +76,21 @@ public class gamesession {
             ui.println("⏱ Осталось: " + timeleft + " секунд");
             ui.println("Экипаж: " + state.crew.size() + "/3 | Предметы: " + state.items.size() + "/4\n");
             
-            if (state.crew.size() < 3 && !availableCrew.isEmpty())
+            if (state.crew.size() < 3 && !crewmembers.isEmpty())
                 {
                 ui.println("ДОСТУПНЫЙ ЭКИПАЖ:");
-                for (int i = 0; i < availableCrew.size(); i++)
+                for (int i = 0; i < crewmembers.size(); i++)
                     {
-                    ui.println((i + 1) + ". " + availableCrew.get(i));
+                    ui.println((i + 1) + ". " + crewmembers.get(i));
                 }
             }
             
-            if (state.items.size() < 4 && !availableItems.isEmpty()) 
+            if (state.items.size() < 4 && !a_items.isEmpty()) 
                 {
                 ui.println("\nДОСТУПНЫЕ ПРЕДМЕТЫ:");
-                for (int i = 0; i < availableItems.size(); i++) 
+                for (int i = 0; i < a_items.size(); i++) 
                     {
-                    ui.println((i+6)+". "+availableItems.get(i));
+                    ui.println((i+6)+". "+a_items.get(i));
                 }
             }
             
@@ -101,19 +101,19 @@ public class gamesession {
             if (choice >=1 && choice <= 5 && state.crew.size()<3)
                 {
                 int idx=choice - 1;
-                if (idx<availableCrew.size())
+                if (idx<crewmembers.size())
                     {
-                    state.crew.add(availableCrew.get(idx));
-                    availableCrew.remove(idx);
+                    state.crew.add(crewmembers.get(idx));
+                    crewmembers.remove(idx);
                     timeleft -= 8;
                 }
             } else if (choice >= 6 && choice <= 11 && state.items.size() <4)
                 {
                 int idx=choice-6;
-                if (idx<availableItems.size())
+                if (idx<a_items.size())
                     {
-                    state.items.add(availableItems.get(idx));
-                    availableItems.remove(idx);
+                    state.items.add(a_items.get(idx));
+                    a_items.remove(idx);
                     timeleft -= 5;
                 }
             }
@@ -132,7 +132,7 @@ public class gamesession {
         }
     }
     
-    private void survivalPhase() {
+    private void survivalphase() {
         ui.println("\n═══════════════════════════════════════");
         ui.println("    НАЧИНАЕТСЯ ФАЗА ВЫЖИВАНИЯ");
         ui.println("═══════════════════════════════════════\n");
@@ -142,13 +142,13 @@ public class gamesession {
             ui.clearScreen();
             ui.displayStatus(state);
             
-            handleRandomEvent();
+            rand_event();
             
             if (state.gameover) break;
             
-            consumeResources();
-            makeDecision();
-            checkGameState();
+            consume_resources();
+            decision();
+            checkgamestate();
             
             state.day++;
             ui.pause(1);
@@ -160,7 +160,7 @@ public class gamesession {
         }
     }
     
-    private void handleRandomEvent() {
+    private void rand_event() {
         String[] events = {
             "Метеоритный дождь повредил корпус!",
             "Обнаружен дрейфующий контейнер с припасами!",
@@ -169,9 +169,9 @@ public class gamesession {
             "Член экипажа заболел!"
         };
         
-        int eventChance = random.nextInt(100);
+        int event_chance = random.nextInt(100);
         
-        if (eventChance < 30) {
+        if (event_chance < 30) {
             String event = events[random.nextInt(events.length)];
             ui.println("📡 СОБЫТИЕ: " + event);
             
@@ -195,7 +195,7 @@ public class gamesession {
         }
     }
     
-    private void consumeResources() {
+    private void consume_resources() {
         state.oxygen -= state.crew.size() * 3;
         state.food -= state.crew.size() * 2;
         
@@ -203,7 +203,7 @@ public class gamesession {
         if (state.food < 0) state.food = 0;
     }
     
-    private void makeDecision() {
+    private void decision() {
         ui.println("Выберите действие:");
         ui.println("1. Отдохнуть (восстановить здоровье экипажа)");
         ui.println("2. Починить корабль (восстановить корпус)");
@@ -233,8 +233,8 @@ public class gamesession {
                 break;
             case 4:
                 if (random.nextBoolean()) {
-                    state.oxygen += 15;
-                    ui.println("Найден кислород! +15%");
+                    state.oxygen += 16;
+                    ui.println("Найден кислород! +16%");
                 } else {
                     ui.println("Ничего не найдено...");
                 }
@@ -249,7 +249,7 @@ public class gamesession {
         ui.println("");
     }
     
-    private void checkGameState() {
+    private void checkgamestate() {
         if (state.oxygen <= 0) {
             ui.println("\n💀 Кислород закончился! Экипаж погиб от удушья.");
             state.gameover = true;
