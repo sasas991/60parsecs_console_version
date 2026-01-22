@@ -264,7 +264,6 @@ public class game {
             state.gameover = true;
         }
         
-        // Ограничение ресурсов
         if (state.oxygen > 100) state.oxygen = 100;
         if (state.food > 100) state.food = 100;
         if (state.ship > 100) state.ship = 100;
