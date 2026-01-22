@@ -1,56 +1,61 @@
 package com.parsecs;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class SixtyParsecsGame {
-    private final GameUI ui = new GameUI();
-    private final GameState state = new GameState();
-    private final Random random = new Random();
-    private final GameDatabase db = new GameDatabase();
+public class game {
+    private final gameui ui=new gameui();
+    private final gamestate state=new gamestate();
+    private final Random random=new Random();
+    private final gamedatabase db=new gamedatabase();
     
-    public void start() {
-        ui.printTitle();
-        
+    public void start()
+    {
+        ui.printTitle();    
         ui.println("1. Новая игра");
         ui.println("2. Загрузить игру");
         ui.print("Ваш выбор: ");
-        int choice = ui.readInt();
-
-        if (choice == 2) {
+        int choice=ui.readInt();
+        if (choice==2)
+        {
             ui.print("Введите имя сохранения: ");
-            String saveName = ui.readString();
-            GameState loadedState = db.loadGame(saveName);
+            String saveName=ui.readString();
+            gamestate loadedState=db.loadGame(saveName);
             
-            if (loadedState != null) {
-                state.oxygen = loadedState.oxygen;
-                state.food = loadedState.food;
-                state.hull = loadedState.hull;
-                state.day = loadedState.day;
-                state.crew = loadedState.crew;
-                state.items = loadedState.items;
-                state.gameOver = loadedState.gameOver;
+            if (loadedState!=null)
+            {
+                state.oxygen=loadedState.oxygen;
+                state.food=loadedState.food;
+                state.ship=loadedState.ship;
+                state.day=loadedState.day;
+                state.crew=loadedState.crew;
+                state.items=loadedState.items;
+                state.gameover=loadedState.gameover;
                 ui.println("Игра загружена!");
                 ui.pause(1);
-            } else {
+            }
+            else
+            {
                 ui.println("Сохранение не найдено. Начинаем новую игру...");
                 ui.pause(2);
                 scavengePhase();
             }
-        } else {
+        }
+        else
+            {
             scavengePhase();
         }
         
-        if (!state.gameOver) {
+        if (!state.gameover) {
             survivalPhase();
         }
         
         ui.close();
     }
     
-    private void scavengePhase() {
+    private void scavengePhase()
+    {
         ui.println("🚨 ТРЕВОГА! ЯДЕРНАЯ АТАКА ЧЕРЕЗ 60 СЕКУНД!");
         ui.println("Быстро собирайте членов экипажа и предметы!\n");
         
@@ -64,45 +69,53 @@ public class SixtyParsecsGame {
             "Лазерный пистолет", "Скафандр", "Радио"
         ));
         
-        int timeLeft = 60;
+        int timeleft=60;
         
-        while (timeLeft > 0 && (state.crew.size() < 3 || state.items.size() < 4)) {
-            ui.println("⏱ Осталось: " + timeLeft + " секунд");
+        while (timeleft>0&&(state.crew.size()<3 || state.items.size()<4))
+            {
+            ui.println("⏱ Осталось: " + timeleft + " секунд");
             ui.println("Экипаж: " + state.crew.size() + "/3 | Предметы: " + state.items.size() + "/4\n");
             
-            if (state.crew.size() < 3 && !availableCrew.isEmpty()) {
+            if (state.crew.size() < 3 && !availableCrew.isEmpty())
+                {
                 ui.println("ДОСТУПНЫЙ ЭКИПАЖ:");
-                for (int i = 0; i < availableCrew.size(); i++) {
+                for (int i = 0; i < availableCrew.size(); i++)
+                    {
                     ui.println((i + 1) + ". " + availableCrew.get(i));
                 }
             }
             
-            if (state.items.size() < 4 && !availableItems.isEmpty()) {
+            if (state.items.size() < 4 && !availableItems.isEmpty()) 
+                {
                 ui.println("\nДОСТУПНЫЕ ПРЕДМЕТЫ:");
-                for (int i = 0; i < availableItems.size(); i++) {
-                    ui.println((i + 6) + ". " + availableItems.get(i));
+                for (int i = 0; i < availableItems.size(); i++) 
+                    {
+                    ui.println((i+6)+". "+availableItems.get(i));
                 }
             }
             
             ui.print("\nВыберите номер (или 0 для завершения): ");
             
-            int choice = ui.readInt();
+            int choice=ui.readInt();
+            if (choice==0) break;
             
-            if (choice == 0) break;
-            
-            if (choice >= 1 && choice <= 5 && state.crew.size() < 3) {
-                int idx = choice - 1;
-                if (idx < availableCrew.size()) {
+            if (choice >=1 && choice <= 5 && state.crew.size()<3)
+                {
+                int idx=choice - 1;
+                if (idx<availableCrew.size())
+                    {
                     state.crew.add(availableCrew.get(idx));
                     availableCrew.remove(idx);
-                    timeLeft -= 8;
+                    timeleft -= 8;
                 }
-            } else if (choice >= 6 && choice <= 11 && state.items.size() < 4) {
-                int idx = choice - 6;
-                if (idx < availableItems.size()) {
+            } else if (choice >= 6 && choice <= 11 && state.items.size() <4)
+                {
+                int idx=choice-6;
+                if (idx<availableItems.size())
+                    {
                     state.items.add(availableItems.get(idx));
                     availableItems.remove(idx);
-                    timeLeft -= 5;
+                    timeleft -= 5;
                 }
             }
             
@@ -111,7 +124,7 @@ public class SixtyParsecsGame {
         
         if (state.crew.isEmpty()) {
             ui.println("\n💀 Вы не успели взять экипаж! ИГРА ОКОНЧЕНА.");
-            state.gameOver = true;
+            state.gameover = true;
         } else {
             ui.println("\n🚀 Вы успели! Шаттл отправляется в космос!");
             ui.println("Экипаж: " + state.crew);
@@ -126,13 +139,13 @@ public class SixtyParsecsGame {
         ui.println("═══════════════════════════════════════\n");
         ui.pause(2);
         
-        while (!state.gameOver && state.day <= 30) {
+        while (!state.gameover && state.day <= 30) {
             ui.clearScreen();
             ui.displayStatus(state);
             
             handleRandomEvent();
             
-            if (state.gameOver) break;
+            if (state.gameover) break;
             
             consumeResources();
             makeDecision();
@@ -142,7 +155,7 @@ public class SixtyParsecsGame {
             ui.pause(1);
         }
         
-        if (state.day > 30 && !state.gameOver) {
+        if (state.day > 30 && !state.gameover) {
             ui.println("\n🎉 ПОБЕДА! Вы выжили 30 дней в космосе!");
             ui.println("Ваш экипаж достиг новой планеты!");
         }
@@ -164,7 +177,7 @@ public class SixtyParsecsGame {
             ui.println("📡 СОБЫТИЕ: " + event);
             
             if (event.contains("Метеоритный")) {
-                state.hull -= 15;
+                state.ship -= 15;
                 ui.println("   Корпус повреждён! -15%");
             } else if (event.contains("контейнер")) {
                 state.food += 20;
@@ -208,10 +221,10 @@ public class SixtyParsecsGame {
                 break;
             case 2:
                 if (state.items.contains("Атомная батарея")) {
-                    state.hull += 20;
+                    state.ship += 20;
                     ui.println("Корпус починен! +20%");
                 } else {
-                    state.hull += 5;
+                    state.ship += 5;
                     ui.println("Частичный ремонт. +5%");
                 }
                 break;
@@ -240,21 +253,21 @@ public class SixtyParsecsGame {
     private void checkGameState() {
         if (state.oxygen <= 0) {
             ui.println("\n💀 Кислород закончился! Экипаж погиб от удушья.");
-            state.gameOver = true;
+            state.gameover = true;
         } else if (state.food <= 0) {
             ui.println("\n💀 Еда закончилась! Экипаж умер от голода.");
-            state.gameOver = true;
-        } else if (state.hull <= 0) {
+            state.gameover = true;
+        } else if (state.ship <= 0) {
             ui.println("\n💀 Корпус разрушен! Корабль развалился в космосе.");
-            state.gameOver = true;
+            state.gameover = true;
         } else if (state.crew.isEmpty()) {
             ui.println("\n💀 Весь экипаж погиб! Некому управлять кораблём.");
-            state.gameOver = true;
+            state.gameover = true;
         }
         
         // Ограничение ресурсов
         if (state.oxygen > 100) state.oxygen = 100;
         if (state.food > 100) state.food = 100;
-        if (state.hull > 100) state.hull = 100;
+        if (state.ship > 100) state.ship = 100;
     }
 }
