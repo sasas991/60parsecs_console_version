@@ -95,7 +95,6 @@ public class game {
             }
             
             ui.print("\nВыберите номер (или 0 для завершения): ");
-            
             int choice=ui.readInt();
             if (choice==0) break;
             

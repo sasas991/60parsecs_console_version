@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 public class gameui
 {
     private final Scanner scanner = new Scanner(System.in);
-
     public void printTitle()
     {
         clearScreen();
