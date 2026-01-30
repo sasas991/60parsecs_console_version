@@ -233,8 +233,8 @@ public class gamesession {
                 break;
             case 4:
                 if (random.nextBoolean()) {
-                    state.oxygen += 16;
-                    ui.println("Найден кислород! +16%");
+                    state.oxygen += 15;
+                    ui.println("Найден кислород! +15%");
                 } else {
                     ui.println("Ничего не найдено...");
                 }
