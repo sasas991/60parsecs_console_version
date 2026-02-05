@@ -1,0 +1,11 @@
+com/parsecs/gamedatabase.class
+com/parsecs/mainitems.class
+com/parsecs/gamestate.class
+com/parsecs/gamesession.class
+com/parsecs/Main.class
+com/parsecs/gameui.class
+com/parsecs/userrole.class
+com/parsecs/itemcategory.class
+com/parsecs/eventfactory.class
+com/parsecs/gameevent.class
+com/parsecs/userauth.class

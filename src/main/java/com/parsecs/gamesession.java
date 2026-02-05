@@ -1,59 +1,69 @@
 package com.parsecs;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.Terminal;
+import java.io.IOException;
 
 public class gamesession {
-    private final gameui ui=new gameui();
+    private gameui ui;
     private final gamestate state=new gamestate();
     private final Random random=new Random();
     private final gamedatabase db=gamedatabase.getInstance(); 
     
-    public void start()
-    {
-        ui.printTitle();    
-        login();
-        ui.println("1. Новая игра");
-        ui.println("2. Загрузить игру");
-        ui.print("Ваш выбор: ");
-        int choice=ui.readInt();
-        if (choice==2)
-        {
-            ui.print("Введите имя сохранения: ");
-            String saveName=ui.readString();
-            gamestate loadedState=db.loadGame(saveName);
-            
-            if (loadedState!=null)
+    public void start() {
+        DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
+        try (Terminal terminal = defaultTerminalFactory.createTerminal()) {
+            terminal.enterPrivateMode();
+            this.ui = new gameui(terminal);
+
+            ui.printTitle();    
+            login();
+            ui.println("1. Новая игра");
+            ui.println("2. Загрузить игру");
+            ui.print("Ваш выбор: ");
+            int choice=ui.readInt();
+            if (choice==2)
             {
-                state.oxygen=loadedState.oxygen;
-                state.food=loadedState.food;
-                state.ship=loadedState.ship;
-                state.day=loadedState.day;
-                state.crew=loadedState.crew;
-                state.items=loadedState.items;
-                state.gameover=loadedState.gameover;
-                state.currentUser = this.state.currentUser; 
-                ui.println("Игра загружена!");
-                ui.pause(1);
+                ui.print("Введите имя сохранения: ");
+                String saveName=ui.readString();
+                gamestate loadedState=db.loadGame(saveName);
+                
+                if (loadedState!=null)
+                {
+                    state.oxygen=loadedState.oxygen;
+                    state.food=loadedState.food;
+                    state.ship=loadedState.ship;
+                    state.day=loadedState.day;
+                    state.crew=loadedState.crew;
+                    state.items=loadedState.items;
+                    state.gameover=loadedState.gameover;
+                    state.currentUser = this.state.currentUser; 
+                    ui.println("Игра загружена!");
+                    ui.pause(1);
+                }
+                else
+                {
+                    ui.println("Сохранение не найдено. Начинаем новую игру...");
+                    ui.pause(2);
+                    nuclearphase();
+                }
             }
             else
-            {
-                ui.println("Сохранение не найдено. Начинаем новую игру...");
-                ui.pause(2);
+                {
                 nuclearphase();
             }
+            
+            if (!state.gameover) {
+                survivalphase();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else
-            {
-            nuclearphase();
-        }
-        
-        if (!state.gameover) {
-            survivalphase();
-        }
-        
-        ui.close();
     }
     
     private void login() {

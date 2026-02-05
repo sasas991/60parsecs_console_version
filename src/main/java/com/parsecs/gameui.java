@@ -1,81 +1,132 @@
 package com.parsecs;
-import java.util.Scanner;
+
+import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.terminal.Terminal;
+
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class gameui
-{
-    private final Scanner scanner = new Scanner(System.in);
-    public void printTitle()
-    {
+public class gameui {
+    private Terminal terminal;
+    private TextGraphics textGraphics;
+    private int currentLine = 0;
+
+    public gameui(Terminal terminal) throws IOException {
+        this.terminal = terminal;
+        this.textGraphics = terminal.newTextGraphics();
+    }
+
+    private void advanceLine(int lines) {
+        try {
+            currentLine += lines;
+            if (currentLine >= terminal.getTerminalSize().getRows()) {
+                currentLine = terminal.getTerminalSize().getRows() - 1;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printTitle() {
         clearScreen();
-        System.out.println("╔════════════════════════════════════════╗");
-        System.out.println("║               60 PARSECS               ║");
-        System.out.println("║     Выживание в космосе началось!      ║");
-        System.out.println("╚════════════════════════════════════════╝");
-        System.out.println();
+        println("╔════════════════════════════════════════╗");
+        println("║               60 PARSECS               ║");
+        println("║     Выживание в космосе началось!      ║");
+        println("╚════════════════════════════════════════╝");
+        println("");
         pause(2);
     }
 
-    public void displayStatus(gamestate state)
-    {
-        System.out.println("╔═══════════════ ДЕНЬ " + state.day + " ═════════════════╗");
-        System.out.println("║ 🫁 Кислород: " + state.oxygen + "%");
-        System.out.println("║ 🍲 Еда: " + state.food + "%");
-        System.out.println("║ 🛡️ Корпус: " + state.ship + "%");
-        System.out.println("║ 👥 Экипаж: " + state.crew.size() + " человек(а)");
-        System.out.println("╚════════════════════════════════════════╝\n");
+    public void displayStatus(gamestate state) {
+        println("╔═══════════════ ДЕНЬ " + state.day + " ═════════════════╗");
+        println("║ 🫁 Кислород: " + state.oxygen + "%");
+        println("║ 🍲 Еда: " + state.food + "%");
+        println("║ 🛡️ Корпус: " + state.ship + "%");
+        println("║ 👥 Экипаж: " + state.crew.size() + " человек(а)");
+        println("╚════════════════════════════════════════╝\n");
     }
 
-    public void println(String message)
-    {
-        System.out.println(message);
-    }
-
-    public void print(String message)
-    {
-        System.out.print(message);
-    }
-
-    public int readInt()
-    {
-        try
-        {
-            int choice=scanner.nextInt();
-            scanner.nextLine();
-            return choice;
+    public void println(String message) {
+        try {
+            textGraphics.putString(0, currentLine, message);
+            advanceLine(1);
+            terminal.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        catch (Exception e)
-        {
-            scanner.nextLine();
+    }
+
+    public void print(String message) {
+        try {
+            textGraphics.putString(0, currentLine, message);
+            terminal.setCursorPosition(message.length(), currentLine);
+            terminal.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int readInt() {
+        String input = readString();
+        try {
+            return Integer.parseInt(input);
+        } catch (NumberFormatException e) {
             return -1;
         }
     }
 
-    public String readString()
-    {
-        return scanner.nextLine();
-    }
+    public String readString() {
+        try {
+            terminal.setCursorVisible(true);
+            StringBuilder sb = new StringBuilder();
+            int startColumn = terminal.getCursorPosition().getColumn();
 
-    public void clearScreen()
-    {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    public void pause(int seconds)
-    {
-        try
-        {
-            TimeUnit.SECONDS.sleep(seconds);
+            while (true) {
+                KeyStroke keyStroke = terminal.readInput();
+                if (keyStroke.getKeyType() == KeyType.Enter) {
+                    break;
+                } else if (keyStroke.getKeyType() == KeyType.Backspace) {
+                    if (sb.length() > 0) {
+                        sb.deleteCharAt(sb.length() - 1);
+                        terminal.setCursorPosition(startColumn + sb.length(), currentLine);
+                        terminal.putCharacter(' ');
+                        terminal.setCursorPosition(startColumn + sb.length(), currentLine);
+                        terminal.flush();
+                    }
+                } else if (keyStroke.getKeyType() == KeyType.Character) {
+                    sb.append(keyStroke.getCharacter());
+                    terminal.putCharacter(keyStroke.getCharacter());
+                    terminal.flush();
+                }
+            }
+            terminal.setCursorVisible(false);
+            advanceLine(1);
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
         }
-        catch (InterruptedException e)
-        {
+    }
+
+    public void clearScreen() {
+        try {
+            terminal.clearScreen();
+            currentLine = 0;
+            terminal.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pause(int seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
 
-    public void close()
-    {
-        scanner.close();
-    }
+    // Метод close() больше не нужен, так как терминал управляется в gamesession
 }
