@@ -50,14 +50,14 @@ public class gameui {
         println("╔═══════════════ ДЕНЬ " + String.format("%-3d", state.day) + " ════════════════╗");
         
         // Вывод ресурсов с динамической окраской
-        printStatusRow("║ [O2] Кислород: ", state.oxygen, "%                    ║");
-        printStatusRow("║ [FD] Еда:      ", state.food, "%                    ║");
-        printStatusRow("║ [HP] Корпус:   ", state.ship, "%                    ║");
+        printStatusRow("║ [O2] Кислород: ", state.oxygen, "%                     ║");
+        printStatusRow("║ [FD] Еда:      ", state.food, "%                     ║");
+        printStatusRow("║ [HP] Корпус:   ", state.ship, "%                     ║");
         
         // Экипаж (просто белый текст внутри рамки)
-        println("║ [CR] Экипаж:   " + String.format("%-3d", state.crew.size()) + " чел.               ║");
+        println("║ [CR] Экипаж:   " + String.format("%-3d", state.crew.size()) + " чел.                 ║");
         
-        println("╚════════════════════════════════════════╝");
+        println("╚═════════════════════════════════════════╝");
         println("");
     }
 

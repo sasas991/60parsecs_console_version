@@ -166,8 +166,8 @@ public class eventfactory {
                     if (answer != sum) ui.typewriter("[FAIL] Ошибка вычислений!");
                     else ui.typewriter("[FAIL] Время вышло!");
                     
-                    state.ship -= 10;
-                    ui.println("   Корабль потерял управление и задел астероид! Корпус -10%");
+                    state.ship -= 30;
+                    ui.println("   Корабль потерял управление и задел астероид! Корпус -30%");
                 }
             };
             case 6: return (state, ui) -> {
@@ -178,8 +178,8 @@ public class eventfactory {
                 
                 if (guess == code) {
                     ui.typewriter("[SUCCESS] Доступ разрешен! Найдены запасы.");
-                    state.food += 15;
-                    ui.println("   Еда +15%");
+                    state.food += 10;
+                    ui.println("   Еда +10%");
                 } else {
                     ui.typewriter("[FAIL] Ошибка доступа! Сработала система защиты.");
                     state.oxygen -= 5;
