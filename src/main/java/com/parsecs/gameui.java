@@ -62,13 +62,24 @@ public class gameui {
     }
 
     public void println(String message) {
+        printText(message, false);
+    }
+
+    public void typewriter(String message) {
+        printText(message, true);
+    }
+
+    private void printText(String message, boolean animate) {
+        
         TextColor color = TextColor.ANSI.DEFAULT;
         
         // Автоматическое определение цвета по тегам
         if (message.contains("[OK]") || message.contains("[SUCCESS]") || message.contains("[HEAL]") || message.contains("[LOOT]") || message.contains("[TRADE]") || message.contains("[SCIENCE]")) {
             color = TextColor.ANSI.GREEN;
         } else if (message.contains("[ERROR]") || message.contains("[FAIL]") || message.contains("[DAMAGE]") || message.contains("[DEATH]") || message.contains("[GAME OVER]") || message.contains("[!!!]")) {
+
             color = TextColor.ANSI.RED;
+
         } else if (message.contains("[WARNING]") || message.contains("[EVENT]") || message.contains("[ATTACK]") || message.contains("[LOCKED]")) {
             color = TextColor.ANSI.YELLOW;
         } else if (message.contains("[VICTORY]") || message.contains("[LAUNCH]") || message.contains("[ADMIN]") || message.contains("[ СИСТЕМА БЕЗОПАСНОСТИ ]")) {
@@ -78,17 +89,32 @@ public class gameui {
         }
 
         try {
-            textGraphics.setForegroundColor(color);
-            textGraphics.putString(0, currentLine, message);
-            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT); // Сброс цвета
-            advanceLine(1);
+            terminal.setCursorPosition(0, currentLine);
+            textGraphics.setForegroundColor(color);            
+            
+            if (animate) {
+                for (char c : message.toCharArray()) {
+                    textGraphics.putString(terminal.getCursorPosition().getColumn(), currentLine, String.valueOf(c));
+                    terminal.flush();
+                    TimeUnit.MILLISECONDS.sleep(30); // Задержка для эффекта "печатной машинки"
+                }
+            } else {
+                textGraphics.putString(0, currentLine, message);
+            }
             terminal.flush();
-        } catch (IOException e) {
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT); // Сброс цвета
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            // Восстанавливаем флаг прерывания, если поток был прерван
+            Thread.currentThread().interrupt();
         }
+        // Переходим на следующую строку после завершения печати
+        advanceLine(1);
     }
 
     public void print(String message) {
+
+
         try {
             terminal.setCursorPosition(0, currentLine);
             textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
@@ -191,4 +217,5 @@ public class gameui {
             e.printStackTrace();
         }
     }
+
 }
