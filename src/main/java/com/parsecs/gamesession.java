@@ -68,7 +68,7 @@ public class gamesession {
     
     private void login() {
         while (state.currentUser == null) {
-            ui.println("🔒 СИСТЕМА БЕЗОПАСНОСТИ");
+            ui.println("[ СИСТЕМА БЕЗОПАСНОСТИ ]");
             ui.println("1. Вход");
             ui.println("2. Регистрация");
             ui.print("Выберите действие: ");
@@ -81,7 +81,7 @@ public class gamesession {
                 String newPassword = ui.readString();
                 
                 if (db.registerUser(newUsername, newPassword)) {
-                    ui.println("✅ Регистрация успешна! Теперь войдите в систему.");
+                    ui.println("[OK] Регистрация успешна! Теперь войдите в систему.");
                 }
             } else if (choice == 1) {
                 ui.print("Имя пользователя: ");
@@ -92,9 +92,9 @@ public class gamesession {
                 userauth user = db.authenticate(username, password);
                 if (user != null) {
                     state.currentUser = user;
-                    ui.println("✅ Добро пожаловать, " + user.getUsername() + " (" + user.getRole() + ")");
+                    ui.println("[OK] Добро пожаловать, " + user.getUsername() + " (" + user.getRole() + ")");
                 } else {
-                    ui.println("❌ Неверные данные.");
+                    ui.println("[!] Неверные данные.");
                 }
             }
         }
@@ -102,7 +102,7 @@ public class gamesession {
 
     private void nuclearphase()
     {
-        ui.println("🚨 ТРЕВОГА! ЯДЕРНАЯ АТАКА ЧЕРЕЗ 60 СЕКУНД!");
+        ui.println("[!!!] ТРЕВОГА! ЯДЕРНАЯ АТАКА ЧЕРЕЗ 60 СЕКУНД!");
         ui.println("Быстро собирайте членов экипажа и предметы!\n");
         
         List<String> crewmembers = new ArrayList<>(Arrays.asList(
@@ -123,7 +123,7 @@ public class gamesession {
         
         while (timeleft>0&&(state.crew.size()<3 || state.items.size()<4))
             {
-            ui.println("⏱ Осталось: " + timeleft + " секунд");
+            ui.println("TIME: Осталось: " + timeleft + " секунд");
             ui.println("Экипаж: " + state.crew.size() + "/3 | Предметы: " + state.items.size() + "/4\n");
             
             if (state.crew.size() < 3 && !crewmembers.isEmpty())
@@ -172,10 +172,10 @@ public class gamesession {
         }
         
         if (state.crew.isEmpty()) {
-            ui.println("\n💀 Вы не успели взять экипаж! ИГРА ОКОНЧЕНА.");
+            ui.println("\n[GAME OVER] Вы не успели взять экипаж! ИГРА ОКОНЧЕНА.");
             state.gameover = true;
         } else {
-            ui.println("\n🚀 Вы успели! Шаттл отправляется в космос!");
+            ui.println("\n[LAUNCH] Вы успели! Шаттл отправляется в космос!");
             ui.print("Экипаж: ");
             state.crew.forEach(c -> ui.print(c + ", ")); 
             ui.println("");
@@ -207,7 +207,7 @@ public class gamesession {
         }
         
         if (state.day > 30 && !state.gameover) {
-            ui.println("\n🎉 ПОБЕДА! Вы выжили 30 дней в космосе!");
+            ui.println("\n[VICTORY] ПОБЕДА! Вы выжили 30 дней в космосе!");
             ui.println("Ваш экипаж достиг новой планеты!");
         }
     }
@@ -279,7 +279,7 @@ public class gamesession {
                     state.oxygen = 100;
                     state.food = 100;
                     state.ship = 100;
-                    ui.println("🛠️ ЧИТ-КОД АКТИВИРОВАН: Ресурсы восстановлены.");
+                    ui.println("[ADMIN] ЧИТ-КОД АКТИВИРОВАН: Ресурсы восстановлены.");
                 }
                 break;
         }
@@ -289,16 +289,16 @@ public class gamesession {
     
     private void checkgamestate() {
         if (state.oxygen <= 0) {
-            ui.println("\n💀 Кислород закончился! Экипаж погиб от удушья.");
+            ui.println("\n[GAME OVER] Кислород закончился! Экипаж погиб от удушья.");
             state.gameover = true;
         } else if (state.food <= 0) {
-            ui.println("\n💀 Еда закончилась! Экипаж умер от голода.");
+            ui.println("\n[GAME OVER] Еда закончилась! Экипаж умер от голода.");
             state.gameover = true;
         } else if (state.ship <= 0) {
-            ui.println("\n💀 Корпус разрушен! Корабль развалился в космосе.");
+            ui.println("\n[GAME OVER] Корпус разрушен! Корабль развалился в космосе.");
             state.gameover = true;
         } else if (state.crew.isEmpty()) {
-            ui.println("\n💀 Весь экипаж погиб! Некому управлять кораблём.");
+            ui.println("\n[GAME OVER] Весь экипаж погиб! Некому управлять кораблём.");
             state.gameover = true;
         }
         

@@ -20,9 +20,10 @@ public class gameui {
 
     private void advanceLine(int lines) {
         try {
+            int rows = terminal.getTerminalSize().getRows();
             currentLine += lines;
-            if (currentLine >= terminal.getTerminalSize().getRows()) {
-                currentLine = terminal.getTerminalSize().getRows() - 1;
+            if (currentLine >= rows) {
+                currentLine = rows - 1;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,12 +41,13 @@ public class gameui {
     }
 
     public void displayStatus(gamestate state) {
-        println("╔═══════════════ ДЕНЬ " + state.day + " ═════════════════╗");
-        println("║ 🫁 Кислород: " + state.oxygen + "%");
-        println("║ 🍲 Еда: " + state.food + "%");
-        println("║ 🛡️ Корпус: " + state.ship + "%");
-        println("║ 👥 Экипаж: " + state.crew.size() + " человек(а)");
-        println("╚════════════════════════════════════════╝\n");
+        println("╔═══════════════ ДЕНЬ " + String.format("%-3d", state.day) + " ════════════════╗");
+        println("║ [O2] Кислород: " + String.format("%-3d", state.oxygen) + "%                    ║");
+        println("║ [FD] Еда:      " + String.format("%-3d", state.food) + "%                    ║");
+        println("║ [HP] Корпус:   " + String.format("%-3d", state.ship) + "%                    ║");
+        println("║ [CR] Экипаж:   " + String.format("%-3d", state.crew.size()) + " чел.               ║");
+        println("╚════════════════════════════════════════╝");
+        println("");
     }
 
     public void println(String message) {

@@ -30,7 +30,7 @@ public class gamedatabase
                 return new userauth(username, userrole.valueOf(rs.getString("role")));
             }
         } catch (SQLException e) {
-            System.out.println("❌ Ошибка входа: " + e.getMessage());
+            System.out.println("[ERROR] Ошибка входа: " + e.getMessage());
         }
         return null;
     }
@@ -45,7 +45,7 @@ public class gamedatabase
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println("❌ Ошибка регистрации (возможно, имя занято): " + e.getMessage());
+            System.out.println("[ERROR] Ошибка регистрации (возможно, имя занято): " + e.getMessage());
             return false;
         }
     }
@@ -110,10 +110,10 @@ public class gamedatabase
             }
 
             conn.commit(); 
-            System.out.println("✅ Игра успешно сохранена как '" + saveName + "'");
+            System.out.println("[SUCCESS] Игра успешно сохранена как '" + saveName + "'");
 
         } catch (SQLException e) {
-            System.out.println("❌ Ошибка сохранения: " + e.getMessage());
+            System.out.println("[ERROR] Ошибка сохранения: " + e.getMessage());
             if (conn != null) {
                 try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             }
@@ -177,7 +177,7 @@ public class gamedatabase
                 }
             }
         } catch (SQLException e) {
-            System.out.println("❌ Ошибка загрузки: " + e.getMessage());
+            System.out.println("[ERROR] Ошибка загрузки: " + e.getMessage());
         }
         return state;
     }
