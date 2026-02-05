@@ -173,6 +173,7 @@ public class gamesession {
         
         if (state.crew.isEmpty()) {
             ui.println("\n[GAME OVER] Вы не успели взять экипаж! ИГРА ОКОНЧЕНА.");
+            ui.pause(5);
             state.gameover = true;
         } else {
             ui.println("\n[LAUNCH] Вы успели! Шаттл отправляется в космос!");
@@ -209,6 +210,7 @@ public class gamesession {
         if (state.day > 30 && !state.gameover) {
             ui.println("\n[VICTORY] ПОБЕДА! Вы выжили 30 дней в космосе!");
             ui.println("Ваш экипаж достиг новой планеты!");
+            ui.pause(5);
         }
     }
     
@@ -290,15 +292,19 @@ public class gamesession {
     private void checkgamestate() {
         if (state.oxygen <= 0) {
             ui.println("\n[GAME OVER] Кислород закончился! Экипаж погиб от удушья.");
+            ui.pause(5);
             state.gameover = true;
         } else if (state.food <= 0) {
             ui.println("\n[GAME OVER] Еда закончилась! Экипаж умер от голода.");
+            ui.pause(5);
             state.gameover = true;
         } else if (state.ship <= 0) {
             ui.println("\n[GAME OVER] Корпус разрушен! Корабль развалился в космосе.");
+            ui.pause(5);
             state.gameover = true;
         } else if (state.crew.isEmpty()) {
             ui.println("\n[GAME OVER] Весь экипаж погиб! Некому управлять кораблём.");
+            ui.pause(5);
             state.gameover = true;
         }
         
