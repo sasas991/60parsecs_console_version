@@ -1,6 +1,7 @@
 package com.parsecs;
 
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.Terminal;
@@ -32,27 +33,54 @@ public class gameui {
 
     public void printTitle() {
         clearScreen();
-        println("╔════════════════════════════════════════╗");
-        println("║               60 PARSECS               ║");
-        println("║     Выживание в космосе началось!      ║");
-        println("╚════════════════════════════════════════╝");
+        try {
+            textGraphics.setForegroundColor(TextColor.ANSI.CYAN);
+            println("╔════════════════════════════════════════╗");
+            println("║               60 PARSECS               ║");
+            println("║     Выживание в космосе началось!      ║");
+            println("╚════════════════════════════════════════╝");
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
+        } catch (Exception e) {}
         println("");
         pause(2);
     }
 
     public void displayStatus(gamestate state) {
+        // Рамка и день
         println("╔═══════════════ ДЕНЬ " + String.format("%-3d", state.day) + " ════════════════╗");
-        println("║ [O2] Кислород: " + String.format("%-3d", state.oxygen) + "%                    ║");
-        println("║ [FD] Еда:      " + String.format("%-3d", state.food) + "%                    ║");
-        println("║ [HP] Корпус:   " + String.format("%-3d", state.ship) + "%                    ║");
+        
+        // Вывод ресурсов с динамической окраской
+        printStatusRow("║ [O2] Кислород: ", state.oxygen, "%                    ║");
+        printStatusRow("║ [FD] Еда:      ", state.food, "%                    ║");
+        printStatusRow("║ [HP] Корпус:   ", state.ship, "%                    ║");
+        
+        // Экипаж (просто белый текст внутри рамки)
         println("║ [CR] Экипаж:   " + String.format("%-3d", state.crew.size()) + " чел.               ║");
+        
         println("╚════════════════════════════════════════╝");
         println("");
     }
 
     public void println(String message) {
+        TextColor color = TextColor.ANSI.DEFAULT;
+        
+        // Автоматическое определение цвета по тегам
+        if (message.contains("[OK]") || message.contains("[SUCCESS]") || message.contains("[HEAL]") || message.contains("[LOOT]") || message.contains("[TRADE]") || message.contains("[SCIENCE]")) {
+            color = TextColor.ANSI.GREEN;
+        } else if (message.contains("[ERROR]") || message.contains("[FAIL]") || message.contains("[DAMAGE]") || message.contains("[DEATH]") || message.contains("[GAME OVER]") || message.contains("[!!!]")) {
+            color = TextColor.ANSI.RED;
+        } else if (message.contains("[WARNING]") || message.contains("[EVENT]") || message.contains("[ATTACK]") || message.contains("[LOCKED]")) {
+            color = TextColor.ANSI.YELLOW;
+        } else if (message.contains("[VICTORY]") || message.contains("[LAUNCH]") || message.contains("[ADMIN]") || message.contains("[ СИСТЕМА БЕЗОПАСНОСТИ ]")) {
+            color = TextColor.ANSI.CYAN;
+        } else if (message.trim().startsWith("╔") || message.trim().startsWith("║") || message.trim().startsWith("╚")) {
+             color = TextColor.ANSI.CYAN; // Цвет рамок
+        }
+
         try {
+            textGraphics.setForegroundColor(color);
             textGraphics.putString(0, currentLine, message);
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT); // Сброс цвета
             advanceLine(1);
             terminal.flush();
         } catch (IOException e) {
@@ -62,6 +90,8 @@ public class gameui {
 
     public void print(String message) {
         try {
+            terminal.setCursorPosition(0, currentLine);
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
             textGraphics.putString(0, currentLine, message);
             terminal.setCursorPosition(message.length(), currentLine);
             terminal.flush();
@@ -82,6 +112,7 @@ public class gameui {
     public String readString() {
         try {
             terminal.setCursorVisible(true);
+            terminal.setForegroundColor(TextColor.ANSI.CYAN); // Цвет ввода пользователя
             StringBuilder sb = new StringBuilder();
             int startColumn = terminal.getCursorPosition().getColumn();
 
@@ -104,6 +135,7 @@ public class gameui {
                 }
             }
             terminal.setCursorVisible(false);
+            terminal.setForegroundColor(TextColor.ANSI.DEFAULT); // Сброс цвета
             advanceLine(1);
             return sb.toString();
         } catch (IOException e) {
@@ -130,5 +162,33 @@ public class gameui {
         }
     }
 
-    // Метод close() больше не нужен, так как терминал управляется в gamesession
+    // Вспомогательный метод для отрисовки строки статуса с цветным значением
+    private void printStatusRow(String prefix, int value, String suffix) {
+        try {
+            // Рамка и префикс (Cyan для рамки, Default для текста)
+            textGraphics.setForegroundColor(TextColor.ANSI.CYAN);
+            textGraphics.putString(0, currentLine, "║");
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
+            textGraphics.putString(1, currentLine, prefix.substring(1));
+            
+            // Значение (Зеленый/Желтый/Красный)
+            TextColor valColor = TextColor.ANSI.GREEN;
+            if (value <= 25) valColor = TextColor.ANSI.RED;
+            else if (value <= 50) valColor = TextColor.ANSI.YELLOW;
+            
+            textGraphics.setForegroundColor(valColor);
+            textGraphics.putString(prefix.length(), currentLine, String.format("%-3d", value));
+            
+            // Суффикс и закрывающая рамка
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
+            textGraphics.putString(prefix.length() + 3, currentLine, suffix.substring(0, suffix.length()-1));
+            textGraphics.setForegroundColor(TextColor.ANSI.CYAN);
+            textGraphics.putString(prefix.length() + 3 + suffix.length() - 1, currentLine, "║");
+            
+            advanceLine(1);
+            terminal.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
