@@ -58,18 +58,34 @@ public class gamesession {
     
     private void login() {
         while (state.currentUser == null) {
-            ui.println("🔒 ВХОД В СИСТЕМУ");
-            ui.print("Имя пользователя: ");
-            String username = ui.readString();
-            ui.print("Пароль: ");
-            String password = ui.readString();
+            ui.println("🔒 СИСТЕМА БЕЗОПАСНОСТИ");
+            ui.println("1. Вход");
+            ui.println("2. Регистрация");
+            ui.print("Выберите действие: ");
+            int choice = ui.readInt();
 
-            userauth user = db.authenticate(username, password);
-            if (user != null) {
-                state.currentUser = user;
-                ui.println("✅ Добро пожаловать, " + user.getUsername() + " (" + user.getRole() + ")");
-            } else {
-                ui.println("❌ Неверные данные. Попробуйте (admin/admin) или (player/123)");
+            if (choice == 2) {
+                ui.print("Придумайте имя пользователя: ");
+                String newUsername = ui.readString();
+                ui.print("Придумайте пароль: ");
+                String newPassword = ui.readString();
+                
+                if (db.registerUser(newUsername, newPassword)) {
+                    ui.println("✅ Регистрация успешна! Теперь войдите в систему.");
+                }
+            } else if (choice == 1) {
+                ui.print("Имя пользователя: ");
+                String username = ui.readString();
+                ui.print("Пароль: ");
+                String password = ui.readString();
+
+                userauth user = db.authenticate(username, password);
+                if (user != null) {
+                    state.currentUser = user;
+                    ui.println("✅ Добро пожаловать, " + user.getUsername() + " (" + user.getRole() + ")");
+                } else {
+                    ui.println("❌ Неверные данные.");
+                }
             }
         }
     }

@@ -35,6 +35,21 @@ public class gamedatabase
         return null;
     }
 
+    public boolean registerUser(String username, String password) {
+        String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.setString(3, userrole.PLAYER.name());
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("❌ Ошибка регистрации (возможно, имя занято): " + e.getMessage());
+            return false;
+        }
+    }
+
     public void saveGame(String saveName, gamestate state) {
         String saveSql = "INSERT INTO game_saves (save_name, oxygen, food, hull, day, game_over) " +
                      "VALUES (?, ?, ?, ?, ?, ?) " +
