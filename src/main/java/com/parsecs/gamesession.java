@@ -8,7 +8,7 @@ public class gamesession {
     private final gameui ui=new gameui();
     private final gamestate state=new gamestate();
     private final Random random=new Random();
-    private final gamedatabase db=new gamedatabase();
+    private final gamedatabase db=gamedatabase.getInstance(); 
     
     public void start()
     {
@@ -126,8 +126,10 @@ public class gamesession {
             state.gameover = true;
         } else {
             ui.println("\n🚀 Вы успели! Шаттл отправляется в космос!");
-            ui.println("Экипаж: " + state.crew);
-            ui.println("Предметы: " + state.items);
+            ui.print("Экипаж: ");
+            state.crew.forEach(c -> ui.print(c + ", ")); 
+            ui.println("");
+            ui.println("Предметы: " + state.items); 
             ui.pause(3);
         }
     }
@@ -161,35 +163,10 @@ public class gamesession {
     }
     
     private void rand_event() {
-        String[] events = {
-            "Метеоритный дождь повредил корпус!",
-            "Обнаружен дрейфующий контейнер с припасами!",
-            "Неизвестный сигнал из глубин космоса...",
-            "Система жизнеобеспечения работает нормально.",
-            "Член экипажа заболел!"
-        };
-        
-        int event_chance = random.nextInt(100);
-        
-        if (event_chance < 30) {
-            String event = events[random.nextInt(events.length)];
-            ui.println("📡 СОБЫТИЕ: " + event);
+        if (random.nextInt(100) < 30) {
+            gameevent event = eventfactory.createRandomEvent();
+            event.execute(state, ui);
             
-            if (event.contains("Метеоритный")) {
-                state.ship -= 15;
-                ui.println("   Корпус повреждён! -15%");
-            } else if (event.contains("контейнер")) {
-                state.food += 20;
-                ui.println("   Найдена еда! +20%");
-            } else if (event.contains("заболел")) {
-                if (state.items.contains("Аптечка")) {
-                    ui.println("   Использована аптечка для лечения.");
-                    state.items.remove("Аптечка");
-                } else {
-                    ui.println("   Нет аптечки! Член экипажа погиб.");
-                    if (!state.crew.isEmpty()) state.crew.remove(0);
-                }
-            }
             ui.println("");
             ui.pause(2);
         }

@@ -9,6 +9,15 @@ public class gamedatabase
     private static final String URL="jdbc:postgresql://localhost:5432/postgres";
     private static final String USER="postgres";
     private static final String PASSWORD="123";
+    
+    private static gamedatabase instance;
+
+    private gamedatabase() {} 
+
+    public static synchronized gamedatabase getInstance() {
+        if (instance == null) instance = new gamedatabase();
+        return instance;
+    }
 
     public void saveGame(String saveName, gamestate state) {
         String saveSql = "INSERT INTO game_saves (save_name, oxygen, food, hull, day, game_over) " +
