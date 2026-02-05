@@ -10,6 +10,9 @@ public class eventfactory {
         
         switch (eventType) {
             case 0: return (state, ui) -> {
+                ui.println("");
+                ui.println("      ");
+                ui.println("  ");
                 ui.typewriter("[EVENT] СОБЫТИЕ: Метеоритный дождь!");
                 ui.println("Ваши действия?");
                 ui.println("1. Использовать Лазерный пистолет (Безопасно)");
@@ -42,6 +45,12 @@ public class eventfactory {
                 }
             };
             case 1: return (state, ui) -> {
+                ui.println("");
+                ui.println("      .___________.");
+                ui.println("     /           /");
+                ui.println("    /___________/|");
+                ui.println("    |           |/");
+                ui.println("    '-----------'");
                 ui.typewriter("[EVENT] СОБЫТИЕ: Дрейфующий контейнер.");
                 ui.println("1. Открыть (Шанс найти еду или ловушку)");
                 ui.println("2. Просканировать (Нужен Учёный Макс)");
@@ -110,6 +119,11 @@ public class eventfactory {
                 }
             };
             case 4: return (state, ui) -> {
+                ui.println("");
+                ui.println("      .-.");
+                ui.println("     (o.o)");
+                ui.println("      |=|");
+                ui.println("     '---'");
                 ui.typewriter("[EVENT] СОБЫТИЕ: Член экипажа заболел!");
                 ui.println("1. Использовать Аптечку (если есть)");
                 ui.println("2. Народная медицина (Шанс 50/50, тратит 10 еды)");
@@ -149,6 +163,10 @@ public class eventfactory {
                 }
             };
             case 5: return (state, ui) -> {
+                ui.println("");
+                ui.println("      / \\");
+                ui.println("     / ! \\");
+                ui.println("    '-----'");
                 ui.typewriter("[WARNING] КРИТИЧЕСКИЙ СБОЙ! Навигационный компьютер завис!");
                 int a = random.nextInt(40) + 10;
                 int b = random.nextInt(40) + 10;

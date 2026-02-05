@@ -46,15 +46,15 @@ public class gameui {
     }
 
     public void displayStatus(gamestate state) {
-        // Рамка и день
+
         println("╔═══════════════ ДЕНЬ " + String.format("%-3d", state.day) + " ════════════════╗");
         
-        // Вывод ресурсов с динамической окраской
+        
         printStatusRow("║ [O2] Кислород: ", state.oxygen, "%                     ║");
         printStatusRow("║ [FD] Еда:      ", state.food, "%                     ║");
         printStatusRow("║ [HP] Корпус:   ", state.ship, "%                     ║");
         
-        // Экипаж (просто белый текст внутри рамки)
+        
         println("║ [CR] Экипаж:   " + String.format("%-3d", state.crew.size()) + " чел.                 ║");
         
         println("╚═════════════════════════════════════════╝");
@@ -73,7 +73,7 @@ public class gameui {
         
         TextColor color = TextColor.ANSI.DEFAULT;
         
-        // Автоматическое определение цвета по тегам
+        
         if (message.contains("[OK]") || message.contains("[SUCCESS]") || message.contains("[HEAL]") || message.contains("[LOOT]") || message.contains("[TRADE]") || message.contains("[SCIENCE]")) {
             color = TextColor.ANSI.GREEN;
         } else if (message.contains("[ERROR]") || message.contains("[FAIL]") || message.contains("[DAMAGE]") || message.contains("[DEATH]") || message.contains("[GAME OVER]") || message.contains("[!!!]")) {
@@ -85,7 +85,7 @@ public class gameui {
         } else if (message.contains("[VICTORY]") || message.contains("[LAUNCH]") || message.contains("[ADMIN]") || message.contains("[ СИСТЕМА БЕЗОПАСНОСТИ ]")) {
             color = TextColor.ANSI.CYAN;
         } else if (message.trim().startsWith("╔") || message.trim().startsWith("║") || message.trim().startsWith("╚")) {
-             color = TextColor.ANSI.CYAN; // Цвет рамок
+             color = TextColor.ANSI.CYAN; 
         }
 
         try {
@@ -96,19 +96,19 @@ public class gameui {
                 for (char c : message.toCharArray()) {
                     textGraphics.putString(terminal.getCursorPosition().getColumn(), currentLine, String.valueOf(c));
                     terminal.flush();
-                    TimeUnit.MILLISECONDS.sleep(30); // Задержка для эффекта "печатной машинки"
+                    TimeUnit.MILLISECONDS.sleep(30); 
                 }
             } else {
                 textGraphics.putString(0, currentLine, message);
             }
             terminal.flush();
-            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT); // Сброс цвета
+            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT); 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-            // Восстанавливаем флаг прерывания, если поток был прерван
+            
             Thread.currentThread().interrupt();
         }
-        // Переходим на следующую строку после завершения печати
+        
         advanceLine(1);
     }
 
@@ -138,7 +138,7 @@ public class gameui {
     public String readString() {
         try {
             terminal.setCursorVisible(true);
-            terminal.setForegroundColor(TextColor.ANSI.CYAN); // Цвет ввода пользователя
+            terminal.setForegroundColor(TextColor.ANSI.CYAN); 
             StringBuilder sb = new StringBuilder();
             int startColumn = terminal.getCursorPosition().getColumn();
 
@@ -161,7 +161,7 @@ public class gameui {
                 }
             }
             terminal.setCursorVisible(false);
-            terminal.setForegroundColor(TextColor.ANSI.DEFAULT); // Сброс цвета
+            terminal.setForegroundColor(TextColor.ANSI.DEFAULT); 
             advanceLine(1);
             return sb.toString();
         } catch (IOException e) {
@@ -188,16 +188,16 @@ public class gameui {
         }
     }
 
-    // Вспомогательный метод для отрисовки строки статуса с цветным значением
+    
     private void printStatusRow(String prefix, int value, String suffix) {
         try {
-            // Рамка и префикс (Cyan для рамки, Default для текста)
+            
             textGraphics.setForegroundColor(TextColor.ANSI.CYAN);
             textGraphics.putString(0, currentLine, "║");
             textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
             textGraphics.putString(1, currentLine, prefix.substring(1));
             
-            // Значение (Зеленый/Желтый/Красный)
+            
             TextColor valColor = TextColor.ANSI.GREEN;
             if (value <= 25) valColor = TextColor.ANSI.RED;
             else if (value <= 50) valColor = TextColor.ANSI.YELLOW;
@@ -205,7 +205,7 @@ public class gameui {
             textGraphics.setForegroundColor(valColor);
             textGraphics.putString(prefix.length(), currentLine, String.format("%-3d", value));
             
-            // Суффикс и закрывающая рамка
+            
             textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
             textGraphics.putString(prefix.length() + 3, currentLine, suffix.substring(0, suffix.length()-1));
             textGraphics.setForegroundColor(TextColor.ANSI.CYAN);
