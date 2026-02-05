@@ -203,7 +203,7 @@ public class gamesession {
     }
     
     private void rand_event() {
-        if (random.nextInt(100) < 30) {
+        if (random.nextInt(100) < 50) {
             gameevent event = eventfactory.createRandomEvent();
             event.execute(state, ui);
             
