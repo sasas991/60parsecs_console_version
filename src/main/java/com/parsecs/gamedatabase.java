@@ -11,34 +11,94 @@ public class gamedatabase
     private static final String PASSWORD="123";
 
     public void saveGame(String saveName, gamestate state) {
-        String sql = "INSERT INTO game_saves (save_name, oxygen, food, hull, day, crew, items, game_over) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
+        String saveSql = "INSERT INTO game_saves (save_name, oxygen, food, hull, day, game_over) " +
+                     "VALUES (?, ?, ?, ?, ?, ?) " +
                      "ON CONFLICT (save_name) DO UPDATE SET " +
                      "oxygen = EXCLUDED.oxygen, food = EXCLUDED.food, hull = EXCLUDED.hull, " +
-                     "day = EXCLUDED.day, crew = EXCLUDED.crew, items = EXCLUDED.items, game_over = EXCLUDED.game_over";
+                     "day = EXCLUDED.day, game_over = EXCLUDED.game_over " +
+                     "RETURNING save_id";
 
-        try (Connection conn=DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt=conn.prepareStatement(sql)) {
+        String deleteCrewSql = "DELETE FROM saved_crew WHERE save_id = ?";
+        String deleteItemsSql = "DELETE FROM saved_items WHERE save_id = ?";
+        String insertCrewSql = "INSERT INTO saved_crew (save_id, crew_member_name) VALUES (?, ?)";
+        String insertItemsSql = "INSERT INTO saved_items (save_id, item_name) VALUES (?, ?)";
 
-            pstmt.setString(1, saveName);
-            pstmt.setInt(2, state.oxygen);
-            pstmt.setInt(3, state.food);
-            pstmt.setInt(4, state.ship);
-            pstmt.setInt(5, state.day);
-            pstmt.setString(6, String.join(",", state.crew));
-            pstmt.setString(7, String.join(",", state.items));
-            pstmt.setBoolean(8, state.gameover);
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            conn.setAutoCommit(false);
 
-            pstmt.executeUpdate();
+            int saveId;
+            try (PreparedStatement pstmt = conn.prepareStatement(saveSql)) {
+                pstmt.setString(1, saveName);
+                pstmt.setInt(2, state.oxygen);
+                pstmt.setInt(3, state.food);
+                pstmt.setInt(4, state.ship);
+                pstmt.setInt(5, state.day);
+                pstmt.setBoolean(6, state.gameover);
+                ResultSet rs = pstmt.executeQuery();
+                rs.next();
+                saveId = rs.getInt(1);
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteCrewSql)) {
+                pstmt.setInt(1, saveId);
+                pstmt.executeUpdate();
+            }
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteItemsSql)) {
+                pstmt.setInt(1, saveId);
+                pstmt.executeUpdate();
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(insertCrewSql)) {
+                for (String crewMember : state.crew) {
+                    pstmt.setInt(1, saveId);
+                    pstmt.setString(2, crewMember);
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(insertItemsSql)) {
+                for (String item : state.items) {
+                    pstmt.setInt(1, saveId);
+                    pstmt.setString(2, item);
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            }
+
+            conn.commit(); 
             System.out.println("✅ Игра успешно сохранена как '" + saveName + "'");
+
         } catch (SQLException e) {
             System.out.println("❌ Ошибка сохранения: " + e.getMessage());
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+        } finally {
+            if (conn != null) {
+                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
     public gamestate loadGame(String saveName)
     {
-        String sql = "SELECT * FROM game_saves WHERE save_name = ?";
+        
+        String sql = "SELECT " +
+                     "    gs.oxygen, gs.food, gs.hull, gs.day, gs.game_over, " +
+                     "    array_agg(DISTINCT sc.crew_member_name) FILTER (WHERE sc.crew_member_name IS NOT NULL) as crew_members, " +
+                     "    array_agg(DISTINCT si.item_name) FILTER (WHERE si.item_name IS NOT NULL) as item_names " +
+                     "FROM " +
+                     "    game_saves gs " +
+                     "LEFT JOIN saved_crew sc ON gs.save_id = sc.save_id " +
+                     "LEFT JOIN saved_items si ON gs.save_id = si.save_id " +
+                     "WHERE " +
+                     "    gs.save_name = ? " +
+                     "GROUP BY " +
+                     "    gs.save_id";
+                     
         gamestate state=null;
 
         try (Connection conn=DriverManager.getConnection(URL, USER, PASSWORD);
@@ -51,18 +111,20 @@ public class gamedatabase
                 state=new gamestate();
                 state.oxygen=rs.getInt("oxygen");
                 state.food=rs.getInt("food");
-                state.ship=rs.getInt("hull");
+                state.ship=rs.getInt("hull"); 
                 state.day=rs.getInt("day");
                 state.gameover=rs.getBoolean("game_over");
 
-                String crewStr=rs.getString("crew");
-                if (crewStr!=null && !crewStr.isEmpty()) {
-                    state.crew=new ArrayList<>(Arrays.asList(crewStr.split(",")));
+                Array crewArray = rs.getArray("crew_members");
+                if (crewArray != null) {
+                    String[] crew = (String[]) crewArray.getArray();
+                    state.crew = new ArrayList<>(Arrays.asList(crew));
                 }
 
-                String itemsStr=rs.getString("items");
-                if (itemsStr != null && !itemsStr.isEmpty()) {
-                    state.items=new ArrayList<>(Arrays.asList(itemsStr.split(",")));
+                Array itemsArray = rs.getArray("item_names");
+                if (itemsArray != null) {
+                    String[] items = (String[]) itemsArray.getArray();
+                    state.items = new ArrayList<>(Arrays.asList(items));
                 }
             }
         } catch (SQLException e) {
