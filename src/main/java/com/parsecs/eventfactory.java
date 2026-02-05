@@ -23,9 +23,9 @@ public class eventfactory {
             case 3: return (state, ui) -> ui.println("📡 СОБЫТИЕ: Система жизнеобеспечения работает нормально.");
             case 4: return (state, ui) -> {
                 ui.println("📡 СОБЫТИЕ: Член экипажа заболел!");
-                if (state.items.contains("Аптечка")) {
+                if (state.hasItem("Аптечка")) {
                     ui.println("   Использована аптечка для лечения.");
-                    state.items.remove("Аптечка");
+                    state.removeItem("Аптечка");
                 } else {
                     ui.println("   Нет аптечки! Член экипажа погиб.");
                     if (!state.crew.isEmpty()) state.crew.remove(0);

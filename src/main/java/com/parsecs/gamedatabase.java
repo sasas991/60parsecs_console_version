@@ -19,6 +19,22 @@ public class gamedatabase
         return instance;
     }
 
+    public userauth authenticate(String username, String password) {
+        String sql = "SELECT role FROM users WHERE username = ? AND password = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new userauth(username, userrole.valueOf(rs.getString("role")));
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Ошибка входа: " + e.getMessage());
+        }
+        return null;
+    }
+
     public void saveGame(String saveName, gamestate state) {
         String saveSql = "INSERT INTO game_saves (save_name, oxygen, food, hull, day, game_over) " +
                      "VALUES (?, ?, ?, ?, ?, ?) " +
@@ -30,7 +46,7 @@ public class gamedatabase
         String deleteCrewSql = "DELETE FROM saved_crew WHERE save_id = ?";
         String deleteItemsSql = "DELETE FROM saved_items WHERE save_id = ?";
         String insertCrewSql = "INSERT INTO saved_crew (save_id, crew_member_name) VALUES (?, ?)";
-        String insertItemsSql = "INSERT INTO saved_items (save_id, item_name) VALUES (?, ?)";
+        String insertItemsSql = "INSERT INTO saved_items (save_id, item_name, item_category) VALUES (?, ?, ?)";
 
         Connection conn = null;
         try {
@@ -69,9 +85,10 @@ public class gamedatabase
             }
 
             try (PreparedStatement pstmt = conn.prepareStatement(insertItemsSql)) {
-                for (String item : state.items) {
+                for (mainitems item : state.items) {
                     pstmt.setInt(1, saveId);
-                    pstmt.setString(2, item);
+                    pstmt.setString(2, item.getName());
+                    pstmt.setString(3, item.getCategory().name());
                     pstmt.addBatch();
                 }
                 pstmt.executeBatch();
@@ -98,7 +115,8 @@ public class gamedatabase
         String sql = "SELECT " +
                      "    gs.oxygen, gs.food, gs.hull, gs.day, gs.game_over, " +
                      "    array_agg(DISTINCT sc.crew_member_name) FILTER (WHERE sc.crew_member_name IS NOT NULL) as crew_members, " +
-                     "    array_agg(DISTINCT si.item_name) FILTER (WHERE si.item_name IS NOT NULL) as item_names " +
+                     "    array_agg(DISTINCT si.item_name) FILTER (WHERE si.item_name IS NOT NULL) as item_names, " +
+                     "    array_agg(DISTINCT si.item_category) FILTER (WHERE si.item_category IS NOT NULL) as item_categories " +
                      "FROM " +
                      "    game_saves gs " +
                      "LEFT JOIN saved_crew sc ON gs.save_id = sc.save_id " +
@@ -131,9 +149,16 @@ public class gamedatabase
                 }
 
                 Array itemsArray = rs.getArray("item_names");
-                if (itemsArray != null) {
-                    String[] items = (String[]) itemsArray.getArray();
-                    state.items = new ArrayList<>(Arrays.asList(items));
+                Array catsArray = rs.getArray("item_categories");
+                
+                if (itemsArray != null && catsArray != null) {
+                    String[] itemNames = (String[]) itemsArray.getArray();
+                    String[] itemCats = (String[]) catsArray.getArray();
+                    
+                    for (int i = 0; i < itemNames.length; i++) {
+                        String catStr = (i < itemCats.length) ? itemCats[i] : "SURVIVAL";
+                        state.items.add(new mainitems(itemNames[i], itemcategory.valueOf(catStr)));
+                    }
                 }
             }
         } catch (SQLException e) {

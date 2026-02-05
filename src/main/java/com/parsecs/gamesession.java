@@ -13,6 +13,7 @@ public class gamesession {
     public void start()
     {
         ui.printTitle();    
+        login();
         ui.println("1. Новая игра");
         ui.println("2. Загрузить игру");
         ui.print("Ваш выбор: ");
@@ -32,6 +33,7 @@ public class gamesession {
                 state.crew=loadedState.crew;
                 state.items=loadedState.items;
                 state.gameover=loadedState.gameover;
+                state.currentUser = this.state.currentUser; 
                 ui.println("Игра загружена!");
                 ui.pause(1);
             }
@@ -54,6 +56,24 @@ public class gamesession {
         ui.close();
     }
     
+    private void login() {
+        while (state.currentUser == null) {
+            ui.println("🔒 ВХОД В СИСТЕМУ");
+            ui.print("Имя пользователя: ");
+            String username = ui.readString();
+            ui.print("Пароль: ");
+            String password = ui.readString();
+
+            userauth user = db.authenticate(username, password);
+            if (user != null) {
+                state.currentUser = user;
+                ui.println("✅ Добро пожаловать, " + user.getUsername() + " (" + user.getRole() + ")");
+            } else {
+                ui.println("❌ Неверные данные. Попробуйте (admin/admin) или (player/123)");
+            }
+        }
+    }
+
     private void nuclearphase()
     {
         ui.println("🚨 ТРЕВОГА! ЯДЕРНАЯ АТАКА ЧЕРЕЗ 60 СЕКУНД!");
@@ -64,9 +84,13 @@ public class gamesession {
             "Медик Сара", "Солдат Том"
         ));
         
-        List<String> a_items = new ArrayList<>(Arrays.asList(
-            "Аптечка", "Суповой порошок", "Атомная батарея",
-            "Лазерный пистолет", "Скафандр", "Радио"
+        List<mainitems> a_items = new ArrayList<>(Arrays.asList(
+            new mainitems("Аптечка", itemcategory.MEDICAL),
+            new mainitems("Суповой порошок", itemcategory.FOOD),
+            new mainitems("Атомная батарея", itemcategory.TECHNOLOGY),
+            new mainitems("Лазерный пистолет", itemcategory.MILITARY),
+            new mainitems("Скафандр", itemcategory.SURVIVAL),
+            new mainitems("Радио", itemcategory.TECHNOLOGY)
         ));
         
         int timeleft=60;
@@ -187,6 +211,9 @@ public class gamesession {
         ui.println("3. Рационировать еду (сохранить еду)");
         ui.println("4. Исследовать космос (шанс найти ресурсы)");
         ui.println("5. Сохранить игру");
+        if (state.currentUser.isAdmin()) {
+            ui.println("6. [ADMIN] Пополнить все ресурсы");
+        }
         
         ui.print("\nВаш выбор: ");
         int choice = ui.readInt();
@@ -196,7 +223,7 @@ public class gamesession {
                 ui.println("Экипаж отдыхает...");
                 break;
             case 2:
-                if (state.items.contains("Атомная батарея")) {
+                if (state.hasItem("Атомная батарея")) {
                     state.ship += 20;
                     ui.println("Корпус починен! +20%");
                 } else {
@@ -220,6 +247,14 @@ public class gamesession {
                 ui.print("Введите имя для сохранения: ");
                 String saveName = ui.readString();
                 db.saveGame(saveName, state);
+                break;
+            case 6:
+                if (state.currentUser.isAdmin()) {
+                    state.oxygen = 100;
+                    state.food = 100;
+                    state.ship = 100;
+                    ui.println("🛠️ ЧИТ-КОД АКТИВИРОВАН: Ресурсы восстановлены.");
+                }
                 break;
         }
         
