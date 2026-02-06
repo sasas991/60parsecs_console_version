@@ -187,6 +187,7 @@ public class gamesession {
     }
     
     private void survivalphase() {
+        ui.clearScreen();
         ui.println("\n═══════════════════════════════════════");
         ui.println("    НАЧИНАЕТСЯ ФАЗА ВЫЖИВАНИЯ");
         ui.println("═══════════════════════════════════════\n");
