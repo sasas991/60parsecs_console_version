@@ -34,12 +34,13 @@ public class gameui {
     public void printTitle() {
         clearScreen();
         try {
-            textGraphics.setForegroundColor(TextColor.ANSI.CYAN);
-            println("╔════════════════════════════════════════╗");
-            println("║               60 PARSECS               ║");
-            println("║     Выживание в космосе началось!      ║");
-            println("╚════════════════════════════════════════╝");
-            textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
+            println("   __   ___    ____   _    ____  ____  _____ ____ ____  ");
+            println("  / /_ / _ \\  |  _ \\ / \\  |  _ \\/ ___|| ____/ ___/ ___| ");
+            println(" | '_ \\ | | | | |_) / _ \\ | |_) \\___ \\|  _|| |   \\___ \\ ");
+            println(" | (_) | |_| ||  __/ ___ \\|  _ < ___) | |__| |___ ___) |");
+            println("  \\___/ \\___/ |_| /_/   \\_\\_| \\_\\____/|_____\\____|____/ ");
+            println("");
+            println("         Выживание в космосе началось!");
         } catch (Exception e) {}
         println("");
         pause(2);
