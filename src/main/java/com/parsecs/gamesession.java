@@ -102,6 +102,7 @@ public class gamesession {
 
     private void nuclearphase()
     {
+        ui.clearScreen();
         ui.typewriter("[!!!] ТРЕВОГА! ЯДЕРНАЯ АТАКА ЧЕРЕЗ 60 СЕКУНД!");
         ui.typewriter("Быстро собирайте членов экипажа и предметы!\n");
         
