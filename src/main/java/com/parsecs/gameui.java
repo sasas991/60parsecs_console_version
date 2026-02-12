@@ -9,7 +9,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class gameui {
+public class gameui implements IUserInterface {
     private Terminal terminal;
     private TextGraphics textGraphics;
     private int currentLine = 0;
