@@ -1,13 +1,13 @@
 package com.parsecs;
 
-import com.googlecode.lanterna.graphics.TextGraphics;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.Terminal;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 public class gameui implements IUserInterface {
     private Terminal terminal;
@@ -73,7 +73,6 @@ public class gameui implements IUserInterface {
     private void printText(String message, boolean animate) {
         
         TextColor color = TextColor.ANSI.DEFAULT;
-        
         
         if (message.contains("[OK]") || message.contains("[SUCCESS]") || message.contains("[HEAL]") || message.contains("[LOOT]") || message.contains("[TRADE]") || message.contains("[SCIENCE]")) {
             color = TextColor.ANSI.GREEN;
